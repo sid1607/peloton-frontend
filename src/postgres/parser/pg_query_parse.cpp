@@ -3,8 +3,10 @@
 #include "pg_query_json.h"
 
 #include "parser/parser.h"
+#include "parser/analyze.h"
 #include "parser/scanner.h"
 #include "parser/scansup.h"
+#include "rewrite/rewriteHandler.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -146,6 +148,31 @@ void pg_query_free_parse_result(PgQueryParseResult result)
 }
 
 /*
+ * Perform rewriting of a query produced by parse analysis.
+ *
+ * Note: query must just have come from the parser, because we do not do
+ * AcquireRewriteLocks() on it.
+ */
+static List *
+pg_rewrite_query(Query *query)
+{
+  List     *querytree_list;
+
+  if (query->commandType == CMD_UTILITY)
+  {
+    /* don't rewrite utilities, just dump 'em into result list */
+    querytree_list = list_make1(query);
+  }
+  else
+  {
+    /* rewrite regular queries */
+    querytree_list = QueryRewrite(query);
+  }
+
+  return querytree_list;
+}
+
+/*
  * Given a raw parsetree (gram.y output), and optionally information about
  * types of parameter symbols ($n), perform parse analysis and rule rewriting.
  *
@@ -164,12 +191,12 @@ pg_analyze_and_rewrite(Node *parsetree, const char *query_string,
   /*
    * (1) Perform parse analysis.
    */
-  //query = parse_analyze(parsetree, query_string, paramTypes, numParams);
+  query = parse_analyze(parsetree, query_string, paramTypes, numParams);
 
   /*
    * (2) Rewrite the queries, as necessary
    */
-  //querytree_list = pg_rewrite_query(query);
+  querytree_list = pg_rewrite_query(query);
 
   return querytree_list;
 }

@@ -19,6 +19,7 @@ postgres_backend_FILES = \
 						 postgres/backend/utils/adt/expandeddatum.cpp \
 						 postgres/backend/parser/gram.cpp \
 						 postgres/backend/parser/parser.cpp \
+						 postgres/backend/parser/analyze.cpp \
 						 postgres/backend/parser/keywords.cpp \
 						 postgres/backend/parser/kwlookup.cpp \
 						 postgres/backend/parser/scansup.cpp \
@@ -30,16 +31,13 @@ postgres_backend_FILES = \
 						 postgres/backend/nodes/outfuncs.cpp \
 						 postgres/backend/nodes/value.cpp \
 						 postgres/backend/nodes/list.cpp \
-						 postgres/backend/lib/stringinfo.cpp 
-						 
-						 
-#						 \
-#						 postgres/backend/rewrite/rewriteDefine.cpp \
-#						 postgres/backend/rewrite/rewriteHandler.cpp \
-#						 postgres/backend/rewrite/rewriteManip.cpp \
-#						 postgres/backend/rewrite/rewriteRemove.cpp \
-#						 postgres/backend/rewrite/rewriteSupport.cpp \
-#						 postgres/backend/rewrite/rowsecurity.cpp						 
+						 postgres/backend/lib/stringinfo.cpp \
+						 postgres/backend/rewrite/rewriteDefine.cpp \
+						 postgres/backend/rewrite/rewriteHandler.cpp \
+						 postgres/backend/rewrite/rewriteManip.cpp \
+						 postgres/backend/rewrite/rewriteRemove.cpp \
+						 postgres/backend/rewrite/rewriteSupport.cpp \
+						 postgres/backend/rewrite/rowsecurity.cpp						 
 
 postgres_backend_INCLUDES = \
 							-I$(srcdir)/postgres/include \
