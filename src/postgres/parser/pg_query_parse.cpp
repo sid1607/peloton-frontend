@@ -144,3 +144,56 @@ void pg_query_free_parse_result(PgQueryParseResult result)
   free(result.parse_tree);
   free(result.stderr_buffer);
 }
+
+/*
+ * Given a raw parsetree (gram.y output), and optionally information about
+ * types of parameter symbols ($n), perform parse analysis and rule rewriting.
+ *
+ * A list of Query nodes is returned, since either the analyzer or the
+ * rewriter might expand one query to several.
+ *
+ * NOTE: for reasons mentioned above, this must be separate from raw parsing.
+ */
+List *
+pg_analyze_and_rewrite(Node *parsetree, const char *query_string,
+                       Oid *paramTypes, int numParams)
+{
+  Query    *query;
+  List     *querytree_list;
+
+  /*
+   * (1) Perform parse analysis.
+   */
+  //query = parse_analyze(parsetree, query_string, paramTypes, numParams);
+
+  /*
+   * (2) Rewrite the queries, as necessary
+   */
+  //querytree_list = pg_rewrite_query(query);
+
+  return querytree_list;
+}
+
+/*
+ * Do raw parsing (only).
+ *
+ * A list of parsetrees is returned, since there might be multiple
+ * commands in the given string.
+ *
+ * NOTE: for interactive queries, it is important to keep this routine
+ * separate from the analysis & rewrite stages.  Analysis and rewriting
+ * cannot be done in an aborted transaction, since they require access to
+ * database tables.  So, we rely on the raw parser to determine whether
+ * we've seen a COMMIT or ABORT command; when we are in abort state, other
+ * commands are not processed any further than the raw parse stage.
+ */
+List *
+pg_parse_query(const char *query_string)
+{
+  List     *raw_parsetree_list;
+
+  raw_parsetree_list = raw_parser(query_string);
+
+  return raw_parsetree_list;
+}
+

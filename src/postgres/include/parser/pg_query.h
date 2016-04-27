@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 
+#include "nodes/pg_list.h"
+#include "nodes/nodes.h"
+
 typedef struct {
 	char* message; // exception message
 	char* filename; // source of exception (e.g. parse.l)
@@ -40,6 +43,8 @@ void pg_query_free_fingerprint_result(PgQueryFingerprintResult result);
 
 PgQueryFingerprintResult pg_query_fingerprint(const char* input);
 PgQueryFingerprintResult pg_query_fingerprint_with_opts(const char* input, bool printTokens);
+
+List *pg_parse_query(const char *query_string);
 
 #ifdef __cplusplus
 }

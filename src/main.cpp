@@ -28,37 +28,29 @@ const char* tests[] = {
 };
 
 int main() {
-  PgQueryParseResult result;
+  List *parsetree_list;
+  ListCell *parsetree_item;
   size_t i;
 
   pg_query_init();
 
   // TEST CASES
   for (i = 0; i < testCount; i++) {
-    result = pg_query_parse(tests[i]);
+    parsetree_list = pg_parse_query(tests[i]);
 
-    if (result.error) {
-      printf("error: %s at %d\n", result.error->message, result.error->cursorpos);
-    } else {
-      printf("%s\n", result.parse_tree);
+    /*
+     * Run through the raw parsetree(s) and process each one.
+     */
+    foreach(parsetree_item, parsetree_list)
+    {
+      Node     *parsetree = (Node *) lfirst(parsetree_item);
+
+      char *parsetree_string = nodeToString(parsetree);
+
+      printf("%s", parsetree_string);
     }
 
-    pg_query_free_parse_result(result);
   }
-
-  // ERROR
-  result = pg_query_parse("INSERT FROM DOES NOT WORK");
-
-  if (result.error) {
-    printf("error: %s at location %d (%s:%d)\n", result.error->message,
-           result.error->cursorpos, result.error->filename, result.error->lineno);
-  } else {
-    printf("%s\n", result.parse_tree);
-  }
-
-  pg_query_free_parse_result(result);
-
-
 
   return 0;
 }

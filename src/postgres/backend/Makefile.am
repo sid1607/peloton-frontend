@@ -27,9 +27,19 @@ postgres_backend_FILES = \
 						 postgres/backend/nodes/equalfuncs.cpp \
 						 postgres/backend/nodes/nodeFuncs.cpp \
 						 postgres/backend/nodes/makefuncs.cpp \
+						 postgres/backend/nodes/outfuncs.cpp \
 						 postgres/backend/nodes/value.cpp \
 						 postgres/backend/nodes/list.cpp \
-						 postgres/backend/lib/stringinfo.cpp
+						 postgres/backend/lib/stringinfo.cpp 
+						 
+						 
+#						 \
+#						 postgres/backend/rewrite/rewriteDefine.cpp \
+#						 postgres/backend/rewrite/rewriteHandler.cpp \
+#						 postgres/backend/rewrite/rewriteManip.cpp \
+#						 postgres/backend/rewrite/rewriteRemove.cpp \
+#						 postgres/backend/rewrite/rewriteSupport.cpp \
+#						 postgres/backend/rewrite/rowsecurity.cpp						 
 
 postgres_backend_INCLUDES = \
 							-I$(srcdir)/postgres/include \
