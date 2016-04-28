@@ -23,6 +23,17 @@ postgres_backend_FILES = \
 						 postgres/backend/parser/keywords.cpp \
 						 postgres/backend/parser/kwlookup.cpp \
 						 postgres/backend/parser/scansup.cpp \
+						 postgres/backend/parser/parse_coerce.cpp \
+						 postgres/backend/parser/parse_param.cpp \
+						 postgres/backend/parser/parse_target.cpp \
+						 postgres/backend/parser/parse_oper.cpp \
+						 postgres/backend/parser/parse_agg.cpp \
+						 postgres/backend/parser/parse_type.cpp \
+						 postgres/backend/parser/parse_cte.cpp \
+						 postgres/backend/parser/parse_node.cpp	\
+						 postgres/backend/parser/parse_clause.cpp \
+						 postgres/backend/parser/parse_collate.cpp \
+						 postgres/backend/parser/parse_relation.cpp \
 						 postgres/backend/nodes/bitmapset.cpp \
 						 postgres/backend/nodes/copyfuncs.cpp \
 						 postgres/backend/nodes/equalfuncs.cpp \
@@ -32,12 +43,10 @@ postgres_backend_FILES = \
 						 postgres/backend/nodes/value.cpp \
 						 postgres/backend/nodes/list.cpp \
 						 postgres/backend/lib/stringinfo.cpp \
-						 postgres/backend/rewrite/rewriteDefine.cpp \
 						 postgres/backend/rewrite/rewriteHandler.cpp \
 						 postgres/backend/rewrite/rewriteManip.cpp \
 						 postgres/backend/rewrite/rewriteRemove.cpp \
-						 postgres/backend/rewrite/rewriteSupport.cpp \
-						 postgres/backend/rewrite/rowsecurity.cpp						 
+						 postgres/backend/rewrite/rewriteSupport.cpp
 
 postgres_backend_INCLUDES = \
 							-I$(srcdir)/postgres/include \
