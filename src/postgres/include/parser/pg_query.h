@@ -46,6 +46,9 @@ PgQueryFingerprintResult pg_query_fingerprint_with_opts(const char* input, bool 
 
 List *pg_parse_query(const char *query_string);
 
+List *pg_analyze_and_rewrite(Node *parsetree, const char *query_string,
+                             Oid *paramTypes, int numParams);
+
 #ifdef __cplusplus
 }
 #endif

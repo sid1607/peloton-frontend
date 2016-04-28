@@ -17,6 +17,9 @@ postgres_backend_FILES = \
 						 postgres/backend/utils/adt/datum.cpp \
 						 postgres/backend/utils/adt/name.cpp \
 						 postgres/backend/utils/adt/expandeddatum.cpp \
+						 postgres/backend/utils/hash/dynahash.cpp \
+						 postgres/backend/utils/hash/hashfn.cpp \
+						 postgres/backend/utils/hash/pg_crc.cpp \
 						 postgres/backend/parser/gram.cpp \
 						 postgres/backend/parser/parser.cpp \
 						 postgres/backend/parser/analyze.cpp \
@@ -34,6 +37,7 @@ postgres_backend_FILES = \
 						 postgres/backend/parser/parse_clause.cpp \
 						 postgres/backend/parser/parse_collate.cpp \
 						 postgres/backend/parser/parse_relation.cpp \
+						 postgres/port/strlcpy.cpp \
 						 postgres/backend/nodes/bitmapset.cpp \
 						 postgres/backend/nodes/copyfuncs.cpp \
 						 postgres/backend/nodes/equalfuncs.cpp \

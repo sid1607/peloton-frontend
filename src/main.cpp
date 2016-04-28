@@ -28,15 +28,19 @@ const char* tests[] = {
 };
 
 int main() {
-  List *parsetree_list;
-  ListCell *parsetree_item;
+  List *parsetree_list, *querytree_list;
+  ListCell *parsetree_item, *querytree_item;
   size_t i;
 
   pg_query_init();
 
   // TEST CASES
   for (i = 0; i < testCount; i++) {
-    parsetree_list = pg_parse_query(tests[i]);
+    const char *query_string = tests[i];
+
+    printf("\n\nQUERY STRING :: %s \n", query_string);
+
+    parsetree_list = pg_parse_query(query_string);
 
     /*
      * Run through the raw parsetree(s) and process each one.
@@ -47,7 +51,20 @@ int main() {
 
       char *parsetree_string = nodeToString(parsetree);
 
-      printf("%s", parsetree_string);
+      printf("\nPARSETREE :: %s \n", parsetree_string);
+
+      querytree_list = pg_analyze_and_rewrite(parsetree, query_string, NULL, 0);
+
+      foreach(querytree_item, querytree_list)
+      {
+        Node     *querytree = (Node *) lfirst(querytree_item);
+
+        char *querytree_string = nodeToString(querytree);
+
+        printf("QUERYTREE :: %s \n", querytree_string);
+      }
+
+
     }
 
   }
