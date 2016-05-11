@@ -17,10 +17,13 @@ include $(srcdir)/postgres/backend/Makefile.am
 include $(srcdir)/postgres/common/Makefile.am
 include $(srcdir)/postgres/port/Makefile.am
 include $(srcdir)/postgres/parser/Makefile.am
+include $(srcdir)/wire/Makefile.am
 
-bin_PROGRAMS = parser
+bin_PROGRAMS = parser \
+			   wire_server
 
 lib_LTLIBRARIES = libparser.la
+lib_LTLIBRARIES += libwire.la
 
 DEFAULT_INCLUDES =
 
@@ -51,6 +54,21 @@ libparser_la_CXXFLAGS = $(AM_CXXFLAGS) \
 libparser_la_LDFLAGS = -lprotobuf
 
 ######################################################################
+# LIBWIRE
+######################################################################
+
+libwire_la_SOURCES = $(wire_FILES)
+libwire_la_CPPFLAGS = $(AM_CPPFLAGS) \
+						 -I$(srcdir)/ \
+						 -I. -I$(top_srcdir)/src -I.. \
+						 -I /opt/local/include
+
+libwire_la_CXXFLAGS = $(AM_CXXFLAGS)
+
+libwire_la_LDFLAGS = -levent -lprotobuf -lpthread -levent_pthreads
+
+
+######################################################################
 # PARSER
 ######################################################################
 
@@ -59,5 +77,16 @@ parser_LDFLAGS =
 parser_CPPFLAGS = -I. -I$(top_srcdir)/src -I.. $(postgres_common_INCLUDES) $(AM_CPPFLAGS)
 
 parser_LDADD = libparser.la
+
+
+######################################################################
+# WIRE PROTOCOL
+######################################################################
+wire_server_SOURCES = wire/wire_main.cpp 
+wire_server_LDFLAGS = -lpthread
+wire_server_CPPFLAGS = -I. -I$(top_srcdir)/src -I.. $(postgres_common_INCLUDES) $(AM_CPPFLAGS)
+wire_server_LDADD = libwire.la
+
+
 
 
