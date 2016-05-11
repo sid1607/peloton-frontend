@@ -4,7 +4,7 @@
 //
 // types.h
 //
-// Identification: src/backend/common/types.h
+// Identification: src/wire/types.h
 //
 // Copyright (c) 2015-16, Carnegie Mellon University Database Group
 //

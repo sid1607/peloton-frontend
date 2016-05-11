@@ -1,8 +1,16 @@
+//===----------------------------------------------------------------------===//
 //
-// Created by Siddharth Santurkar on 31/3/16.
+//                         Peloton
 //
+// protocol.cpp
+//
+// Identification: src/wire/protocol.cpp
+//
+// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
-#include "marshall.h"
+#include "marshal.h"
 #include "cache.h"
 #include "portal.h"
 #include "cache_entry.h"
@@ -42,8 +50,8 @@ void PacketManager::make_hardcoded_parameter_status(
     const std::pair<std::string, std::string>& kv) {
   std::unique_ptr<Packet> response(new Packet());
   response->msg_type = 'S';
-  packet_putstring(response, kv.first);
-  packet_putstring(response, kv.second);
+  packet_put_string(response, kv.first);
+  packet_put_string(response, kv.second);
   responses.push_back(std::move(response));
 }
 /*
@@ -55,7 +63,7 @@ bool PacketManager::process_startup_packet(Packet* pkt,
   std::string token, value;
   std::unique_ptr<Packet> response(new Packet());
 
-  int32_t proto_version = packet_getint(pkt, sizeof(int32_t));
+  int32_t proto_version = packet_get_int(pkt, sizeof(int32_t));
 
   // Only protocol version 3 is supported
   if (PROTO_MAJOR_VERSION(proto_version) != 3) {
@@ -88,7 +96,7 @@ bool PacketManager::process_startup_packet(Packet* pkt,
 
   // send auth-ok ('R')
   response->msg_type = 'R';
-  packet_putint(response, 0, 4);
+  packet_put_int(response, 0, 4);
   responses.push_back(std::move(response));
 
   // Send the parameterStatus map ('S')
@@ -108,23 +116,23 @@ void PacketManager::put_row_desc(std::vector<wiredb::FieldInfoType> &rowdesc, Re
   LOG_INFO("Put RowDescription");
   std::unique_ptr<Packet> pkt(new Packet());
   pkt->msg_type = 'T';
-  packet_putint(pkt, rowdesc.size(), 2);
+  packet_put_int(pkt, rowdesc.size(), 2);
 
   for (auto col : rowdesc) {
     LOG_INFO("column name: %s", std::get<0>(col).c_str());
-    packet_putstring(pkt, std::get<0>(col));
+    packet_put_string(pkt, std::get<0>(col));
     // TODO: Table Oid (int32)
-    packet_putint(pkt, 0, 4);
+    packet_put_int(pkt, 0, 4);
     // TODO: Attr id of column (int16)
-    packet_putint(pkt, 0, 2);
+    packet_put_int(pkt, 0, 2);
     // Field data type (int32)
-    packet_putint(pkt, std::get<1>(col), 4);
+    packet_put_int(pkt, std::get<1>(col), 4);
     // Data type size (int16)
-    packet_putint(pkt, std::get<2>(col), 2);
+    packet_put_int(pkt, std::get<2>(col), 2);
     // Type modifier (int32)
-    packet_putint(pkt, -1, 4);
+    packet_put_int(pkt, -1, 4);
     // Format code for text
-    packet_putint(pkt, 0, 2);
+    packet_put_int(pkt, 0, 2);
   }
   responses.push_back(std::move(pkt));
 }
@@ -144,12 +152,12 @@ void PacketManager::send_data_rows(std::vector<wiredb::ResType> &results,
   for (size_t i = 0; i < numrows; i++) {
     std::unique_ptr<Packet> pkt(new Packet());
     pkt->msg_type = 'D';
-    packet_putint(pkt, colcount, 2);
+    packet_put_int(pkt, colcount, 2);
     for (int j = 0; j < colcount; j++) {
       // length of the row attribute
-      packet_putint(pkt, results[i*colcount + j].second.size(), 4);
+      packet_put_int(pkt, results[i*colcount + j].second.size(), 4);
       // contents of the row attribute
-      packet_putbytes(pkt, results[i*colcount + j].second);
+      packet_put_bytes(pkt, results[i*colcount + j].second);
     }
     responses.push_back(std::move(pkt));
   }
@@ -184,7 +192,7 @@ void PacketManager::complete_command(const std::string &query_type,
   else
     tag += " " + std::to_string(rows);
   LOG_INFO("complete command tag: %s", tag.c_str());
-  packet_putstring(pkt, tag);
+  packet_put_string(pkt, tag);
 
   responses.push_back(std::move(pkt));
 }
@@ -218,7 +226,7 @@ bool PacketManager::hardcoded_execute_filter(std::string query_type) {
 /* The Simple Query Protocol */
 void PacketManager::exec_query_message(Packet *pkt, ResponseBuffer &responses) {
   std::string q_str;
-  packet_getstring(pkt, pkt->len, q_str);
+  packet_get_string(pkt, pkt->len, q_str);
   LOG_INFO("Query Received: %s \n", q_str.c_str());
 
   std::vector<std::string> queries;
@@ -298,13 +306,13 @@ void PacketManager::exec_parse_message(Packet *pkt, ResponseBuffer &responses) {
   }
 
   // Read number of params
-  int num_params = packet_getint(pkt, 2);
+  int num_params = packet_get_int(pkt, 2);
   LOG_INFO("NumParams: %d", num_params);
 
   // Read param types
   std::vector<int32_t> param_types(num_params);
   for (int i = 0; i < num_params; i++) {
-    int param_type = packet_getint(pkt, 4);
+    int param_type = packet_get_int(pkt, 4);
     param_types[i] = param_type;
   }
 
@@ -348,16 +356,16 @@ void PacketManager::exec_bind_message(Packet *pkt, ResponseBuffer &responses) {
   }
 
   // Read parameter format
-  int num_params_format = packet_getint(pkt, 2);
+  int num_params_format = packet_get_int(pkt, 2);
 
   // get the format of each parameter
   std::vector<int16_t> formats(num_params_format);
   for (int i = 0; i < num_params_format; i++) {
-    formats[i] = packet_getint(pkt, 2);
+    formats[i] = packet_get_int(pkt, 2);
   }
 
   // error handling
-  int num_params = packet_getint(pkt, 2);
+  int num_params = packet_get_int(pkt, 2);
   if (num_params_format != num_params) {
     std::string err_msg =
       "Malformed request: num_params_format is not equal to num_params";
@@ -403,13 +411,13 @@ void PacketManager::exec_bind_message(Packet *pkt, ResponseBuffer &responses) {
   std::vector<std::pair<int, std::string>> bind_parameters;
   PktBuf param;
   for (int param_idx = 0; param_idx < num_params; param_idx++) {
-    int param_len = packet_getint(pkt, 4);
+    int param_len = packet_get_int(pkt, 4);
     // BIND packet NULL parameter case
     if (param_len == -1) {
       // NULL mode
       bind_parameters.push_back(std::make_pair(WIRE_NULL, std::string("")));
     } else {
-      packet_getbytes(pkt, param_len, param);
+      packet_get_bytes(pkt, param_len, param);
 
       if (formats[param_idx] == 0) {
         // TEXT mode
@@ -464,7 +472,6 @@ void PacketManager::exec_bind_message(Packet *pkt, ResponseBuffer &responses) {
   portal->prep_stmt_name = prep_stmt_name;
   portal->portal_name = portal_name;
   portal->query_type = query_type;
-  portal->colcount = 0;
 
   auto itr = portals_.find(portal_name);
   if (itr == portals_.end()) {
@@ -485,7 +492,7 @@ void PacketManager::exec_describe_message(Packet *pkt,
   PktBuf mode;
   std::string name;
   LOG_INFO("DESCRIBE message");
-  packet_getbytes(pkt, 1, mode);
+  packet_get_bytes(pkt, 1, mode);
   LOG_INFO("mode %c", mode[0]);
   get_string_token(pkt, name);
   LOG_INFO("name: %s", name.c_str());
@@ -500,11 +507,6 @@ void PacketManager::exec_describe_message(Packet *pkt,
     std::shared_ptr<Portal> p = portal_itr->second;
     db.GetRowDesc(p->stmt, p->rowdesc);
     put_row_desc(p->rowdesc, responses);
-    p->colcount = p->rowdesc.size();
-  } else if (mode[0] == 'S') {
-    // TODO: need to handle this case
-  } else {
-    // TODO: error handling here
   }
 }
 
@@ -555,20 +557,14 @@ void PacketManager::exec_execute_message(Packet *pkt,
     globals.sqlite_mutex.unlock();
   }
 
-//  if (portal->colcount == 0){
-//    // colcount uninitialized, load the colcount
-//    db.GetRowDesc(portal->stmt, portal->rowdesc);
-//    portal->colcount = portal->rowdesc.size();
-//  }
-
   //put_row_desc(portal->rowdesc, responses);
-  send_data_rows(results, portal->colcount, rows_affected, responses);
+  send_data_rows(results, portal->rowdesc.size(), rows_affected, responses);
   complete_command(query_type, rows_affected, responses);
 }
 
 /*
  * process_packet - Main switch block; process incoming packets,
- *  Returns false if the seesion needs to be closed.
+ *  Returns false if the session needs to be closed.
  */
 bool PacketManager::process_packet(Packet* pkt, ThreadGlobals& globals, ResponseBuffer& responses) {
   switch (pkt->msg_type) {
@@ -613,12 +609,12 @@ void PacketManager::send_error_response(
   pkt->msg_type = 'E';
 
   for (auto entry : error_status) {
-    packet_putbyte(pkt, entry.first);
-    packet_putstring(pkt, entry.second);
+    packet_put_byte(pkt, entry.first);
+    packet_put_string(pkt, entry.second);
   }
 
   // put null terminator
-  packet_putbyte(pkt, 0);
+  packet_put_byte(pkt, 0);
 
   // don't care if write finished or not, we are closing anyway
   responses.push_back(std::move(pkt));
@@ -629,7 +625,7 @@ void PacketManager::send_ready_for_query(uchar txn_status,
   std::unique_ptr<Packet> pkt(new Packet());
   pkt->msg_type = 'Z';
 
-  packet_putbyte(pkt, txn_status);
+  packet_put_byte(pkt, txn_status);
 
   responses.push_back(std::move(pkt));
 }

@@ -1,7 +1,14 @@
+//===----------------------------------------------------------------------===//
 //
-// Created by Zrs_y on 4/18/16.
+//                         Peloton
 //
-
+// database.h
+//
+// Identification: src/wire/database.h
+//
+// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 #ifndef PELOTON_DATABASE_H
 #define PELOTON_DATABASE_H
 

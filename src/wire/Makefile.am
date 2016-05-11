@@ -4,7 +4,7 @@
 # WIRE PROTOCOL
 ######################################################################
 
-wire_FILES =  wire/marshall.cpp \
+wire_FILES =  wire/marshal.cpp \
 			  wire/protocol.cpp \
 			  wire/socket_base.cpp \
 			  wire/cache.cpp \

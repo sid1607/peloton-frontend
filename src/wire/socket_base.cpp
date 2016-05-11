@@ -1,9 +1,15 @@
+//===----------------------------------------------------------------------===//
 //
-// Created by siddharth on 31/3/16.
+//                         Peloton
 //
-
+// socket_base.cpp
+//
+// Identification: src/wire/socket_base.cpp
+//
+// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 #include "socket_base.h"
-#include <stdlib.h>
 
 namespace peloton {
 namespace wire {

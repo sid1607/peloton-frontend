@@ -4,7 +4,7 @@
 //
 // assert.h
 //
-// Identification: src/backend/common/assert.h
+// Identification: src/wire/assert.h
 //
 // Copyright (c) 2015-16, Carnegie Mellon University Database Group
 //

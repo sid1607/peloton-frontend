@@ -1,6 +1,14 @@
+//===----------------------------------------------------------------------===//
 //
-// Created by Siddharth Santurkar on 31/3/16.
+//                         Peloton
 //
+// socket_base.h
+//
+// Identification: src/wire/socket_base.h
+//
+// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
 #ifndef PELOTON_SOCKET_BASE_H
 #define PELOTON_SOCKET_BASE_H

@@ -4,7 +4,7 @@
 //
 // cache.cpp
 //
-// Identification: src/backend/common/cache.cpp
+// Identification: src/wire/cache.cpp
 //
 // Copyright (c) 2015-16, Carnegie Mellon University Database Group
 //

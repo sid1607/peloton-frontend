@@ -57,26 +57,6 @@ public:
     GetRowDesc(sql_stmt, info);
     return ExecPrepStmt(sql_stmt, true, res, rows_change, err_msg);
   }
-/*
-
-  int PortalDesc(const char *table_name, std::vector<FieldInfoType> &field_info, std::string &err_msg) {
-
-    char *zErrMsg = 0;
-
-    std::string query = "PRAGMA table_info(" + std::string(table_name) + ");";
-    LOG_INFO("describle query %s", query.c_str());
-    auto rc = sqlite3_exec(db, query.c_str(), descCallback, (void *) &field_info, &zErrMsg);
-    if (rc != SQLITE_OK) {
-      LOG_INFO("error in des %s", zErrMsg);
-      if (zErrMsg != NULL)
-        err_msg = std::string(zErrMsg);
-        sqlite3_free(zErrMsg);
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-*/
 
   /*
    * InitBindPrepStmt - Prepare and bind a query from a query string
@@ -102,29 +82,24 @@ public:
       switch (wire_type) {
         case WIRE_INTEGER: {
           int int_val = std::stoi(wire_val);
-          // LOG_INFO("BIND INT: %d", int_val);
           rc = sqlite3_bind_int(*stmt, paramno, int_val);
         } break;
         case WIRE_FLOAT: {
           double double_val = std::stod(wire_val);
-          // LOG_INFO("BIND FLOAT: %lf", double_val);
           rc = sqlite3_bind_double(*stmt, paramno, double_val);
         } break;
         case WIRE_TEXT: {
           const char *str_val = wire_val.c_str();
           size_t str_len = wire_val.size();
-          // LOG_INFO("BIND TEXT: %s", str_val);
           rc = sqlite3_bind_text(*stmt, paramno, str_val, (int) str_len,
                                  SQLITE_TRANSIENT);
         } break;
 
         case WIRE_NULL: {
-          // LOG_INFO("BIND NULL");
           rc = sqlite3_bind_null(*stmt, paramno);
           break;
         }
         default: {
-          // LOG_INFO("Unknown bind type");
           return 1;
         }
       }
@@ -214,7 +189,6 @@ public:
         }
         // TODO: refactor this
         res.push_back(ResType());
-        //LOG_INFO("res from exeStmt %s %s", name, value.c_str());
         copyFromTo(name, res.back().first);
         copyFromTo(value.c_str(), res.back().second);
       }
@@ -239,62 +213,60 @@ public:
 
 private:
   void test() {
-      LOG_INFO("RUN TEST");
+    LOG_INFO("RUN TEST");
 
-      std::vector<ResType> res;
-      std::vector<FieldInfoType> info;
-      std::string err;
-      int rows;
-
-
-      // create table
-      PortalExec("DROP TABLE IF EXISTS AA", res, info, rows, err);
-      PortalExec("CREATE TABLE AA (id INT PRIMARY KEY, data TEXT);", res, info, rows, err);
-      res.clear();
-
-      // test simple insert
-      PortalExec("INSERT INTO AA VALUES (1, 'abc'); ", res, info, rows, err);
-      std::vector<std::pair<int, std::string>> parameters;
-      parameters.push_back(std::make_pair(WIRE_TEXT, std::string("12")));
-      parameters.push_back(std::make_pair(WIRE_TEXT, std::string("abc")));
+    std::vector<ResType> res;
+    std::vector<FieldInfoType> info;
+    std::string err;
+    int rows;
 
 
-      // test bind
-      sqlite3_stmt *s;
-      PrepareStmt("insert into AA (id, data) values ( ?, ? )", &s, err);
-      BindStmt(parameters, &s, err);
-      GetRowDesc(s, info);
-      ExecPrepStmt(s, false, res, rows, err);
-      BindStmt(parameters, &s, err);
-      GetRowDesc(s, info);
-      ExecPrepStmt(s, false, res, rows, err);
-      res.clear();
+    // create table
+    PortalExec("DROP TABLE IF EXISTS AA", res, info, rows, err);
+    PortalExec("CREATE TABLE AA (id INT PRIMARY KEY, data TEXT);", res, info, rows, err);
+    res.clear();
 
-      // select all
-      sqlite3_stmt *sql_stmt;
-      sqlite3_prepare_v2(db, "select * from AA;", -1, &sql_stmt, NULL);
-      res.clear();
-      info.clear();
-      GetRowDesc(s, info);
-      ExecPrepStmt(sql_stmt, false, res, rows, err);
+    // test simple insert
+    PortalExec("INSERT INTO AA VALUES (1, 'abc'); ", res, info, rows, err);
+    std::vector<std::pair<int, std::string>> parameters;
+    parameters.push_back(std::make_pair(WIRE_TEXT, std::string("12")));
+    parameters.push_back(std::make_pair(WIRE_TEXT, std::string("abc")));
 
-      // res.size() should be 4
-      // info.size() should be 2
-      LOG_INFO("col %ld, info %ld", res.size(), info.size());
 
-      res.clear();
+    // test bind
+    sqlite3_stmt *s;
+    PrepareStmt("insert into AA (id, data) values ( ?, ? )", &s, err);
+    BindStmt(parameters, &s, err);
+    GetRowDesc(s, info);
+    ExecPrepStmt(s, false, res, rows, err);
+    BindStmt(parameters, &s, err);
+    GetRowDesc(s, info);
+    ExecPrepStmt(s, false, res, rows, err);
+    res.clear();
+
+    // select all
+    sqlite3_stmt *sql_stmt;
+    sqlite3_prepare_v2(db, "select * from AA;", -1, &sql_stmt, NULL);
+    res.clear();
+    info.clear();
+    GetRowDesc(s, info);
+    ExecPrepStmt(sql_stmt, false, res, rows, err);
+
+    // res.size() should be 4
+    // info.size() should be 2
+    LOG_INFO("col %ld, info %ld", res.size(), info.size());
+
+    res.clear();
   }
 
   static inline void copyFromTo(const char *src, std::vector<unsigned char> &dst) {
     if (src == nullptr) {
       return;
     }
-    //LOG_INFO("ENTER: strlen: %zu", strlen(src));
     size_t len = strlen(src);
     for(unsigned int i = 0; i < len; i++){
       dst.push_back((unsigned char)src[i]);
     }
-    //LOG_INFO("EXIT: strlen: %zu", strlen(src));
   }
 
   static int execCallback(void *res, int argc, char **argv, char **azColName){
@@ -318,34 +290,6 @@ private:
   static int getSize(const std::string& type UNUSED) {
     return 0;
   }
-  /*
-  static int descCallback(void *res, int argc, char **argv, char **azColName){
-    auto output = (std::vector<FieldInfoType> *)res;
-    std::string name, type;
-    for(int i = 0; i < argc; i++){
-      output->push_back(FieldInfoType());
-      if (argv[i] == NULL) {
-        LOG_INFO("value is null");
-      }else if(azColName[i] == NULL) {
-        LOG_INFO("name is null");
-      }else {
-        if(strcmp(azColName[i], "name") == 0) {
-          LOG_INFO("name is %s", argv[i]);
-          name = std::string(argv[i]);
-        }else if(strcmp(azColName[i], "type") == 0) {
-          LOG_INFO("type is %s", argv[i]);
-          type = std::string(argv[i]);
-        }
-      }
-
-      int size = getSize(type);
-      output->push_back(std::make_tuple(name, type, size));
-      return 0;
-    }
-
-    return 0;
-  }
-   */
 
 private:
   sqlite3 *db;

@@ -1,8 +1,16 @@
+//===----------------------------------------------------------------------===//
 //
-// Created by Siddharth Santurkar on 4/4/16.
+//                         Peloton
 //
+// marshal.cpp
+//
+// Identification: src/wire/marshal.cpp
+//
+// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
-#include "marshall.h"
+#include "marshal.h"
 #include <netinet/in.h>
 #include <algorithm>
 #include <cstring>
@@ -25,7 +33,7 @@ PktBuf::iterator get_end_itr(Packet *pkt, int len) {
 }
 
 
-int packet_getint(Packet *pkt, uchar base) {
+int packet_get_int(Packet *pkt, uchar base) {
   int value = 0;
 
   check_overflow(pkt, base);
@@ -58,7 +66,7 @@ int packet_getint(Packet *pkt, uchar base) {
   return value;
 }
 
-void packet_getbytes(Packet *pkt, size_t len, PktBuf& result) {
+void packet_get_bytes(Packet *pkt, size_t len, PktBuf& result) {
   result.clear();
   check_overflow(pkt, len);
 
@@ -73,7 +81,7 @@ void packet_getbytes(Packet *pkt, size_t len, PktBuf& result) {
   pkt->ptr += len;
 }
 
-void packet_getstring(Packet *pkt, size_t len, std::string& result) {
+void packet_get_string(Packet *pkt, size_t len, std::string& result) {
   // exclude null char for std string
   result = std::string(std::begin(pkt->buf) + pkt->ptr,
                      get_end_itr(pkt, len - 1));
@@ -107,12 +115,12 @@ void get_string_token(Packet *pkt, std::string& result) {
 }
 
 
-void packet_putbyte(std::unique_ptr<Packet> &pkt, const uchar c) {
+void packet_put_byte(std::unique_ptr<Packet> &pkt, const uchar c) {
   pkt->buf.push_back(c);
   pkt->len++;
 }
 
-void packet_putstring(std::unique_ptr<Packet> &pkt, const std::string &str) {
+void packet_put_string(std::unique_ptr<Packet> &pkt, const std::string &str) {
   pkt->buf.insert(std::end(pkt->buf), std::begin(str), std::end(str));
   // add null character
   pkt->buf.push_back(0);
@@ -120,12 +128,12 @@ void packet_putstring(std::unique_ptr<Packet> &pkt, const std::string &str) {
   pkt->len += str.size() + 1;
 }
 
-void packet_putbytes(std::unique_ptr<Packet> &pkt, const std::vector<uchar>& data) {
+void packet_put_bytes(std::unique_ptr<Packet> &pkt, const std::vector<uchar>& data) {
   pkt->buf.insert(std::end(pkt->buf), std::begin(data), std::end(data));
   pkt->len += data.size();
 }
 
-void packet_putint(std::unique_ptr<Packet> &pkt, int n, int base) {
+void packet_put_int(std::unique_ptr<Packet> &pkt, int n, int base) {
   switch (base) {
     case 2:
       n = htons(n);
@@ -140,10 +148,10 @@ void packet_putint(std::unique_ptr<Packet> &pkt, int n, int base) {
       exit(EXIT_FAILURE);
   }
 
-  packet_putcbytes(pkt, reinterpret_cast<uchar *>(&n), base);
+  packet_put_cbytes(pkt, reinterpret_cast<uchar *>(&n), base);
 }
 
-void packet_putcbytes(std::unique_ptr<Packet> &pkt, const uchar *b, int len) {
+void packet_put_cbytes(std::unique_ptr<Packet> &pkt, const uchar *b, int len) {
   pkt->buf.insert(std::end(pkt->buf), b, b + len);
   pkt->len += len;
 }

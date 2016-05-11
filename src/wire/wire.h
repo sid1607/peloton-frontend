@@ -1,11 +1,15 @@
+//===----------------------------------------------------------------------===//
 //
-// Created by Siddharth Santurkar on 31/3/16.
+//                         Peloton
 //
+// wire.h
+//
+// Identification: src/wire/wire.h
+//
+// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+//
+//===----------------------------------------------------------------------===//
 
-/*
- * wire.h - Includes some of the common types like Packet used by all the sources.
- *    Also includes the PacketManager Primitives that are implemented by protocol.h
- */
 #ifndef WIRE_H
 #define WIRE_H
 
